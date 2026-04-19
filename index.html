@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ランキング</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  color: #0ff;
+  font-family: monospace;
+}
+
+/* タイトル */
+h1 {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 40px;
+  text-shadow: 0 0 10px #0ff;
+}
+
+/* 🔥 更新時間 */
+#time {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  font-size: 14px;
+  color: #0ff;
+}
+
+/* 全体 */
+.container {
+  width: 90%;
+  margin: auto;
+}
+
+/* TOP3 */
+.top3 {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 40px;
+}
+
+.card {
+  width: 30%;
+  padding: 20px;
+  border: 2px solid #0ff;
+  text-align: center;
+  border-radius: 10px;
+  background: rgba(0,255,255,0.05);
+}
+
+.first {
+  font-size: 40px;
+  color: gold;
+  box-shadow: 0 0 20px gold;
+  transform: scale(1.1);
+}
+
+.second {
+  font-size: 30px;
+  color: silver;
+}
+
+.third {
+  font-size: 26px;
+  color: #cd7f32;
+}
+
+/* 表 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+tr {
+  border-bottom: 1px solid #0ff;
+}
+
+td {
+  padding: 12px;
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🏆 ランキング</h1>
+<div id="time"></div>
+
+<div class="container">
+  <div class="top3" id="top3"></div>
+  <table id="ranking"></table>
+</div>
+
+<script>
+const url = "https://script.google.com/macros/s/AKfycbyZaOEyB6FFHNho2esrHK8MZT9CO2212L-OQravkFlAZxib6fEsgdn3BaZ5dKiM_bYVSg/exec";
+
+function loadData() {
+  fetch(url)
+    .then(res => res.json())
+    .then(players => {
+
+      // 🔥 不正データ除外（ここ重要）
+      players = players
+        .map(p => ({
+          name: p.name?.trim(),
+          score: Number(p.score)
+        }))
+        .filter(p => 
+          p.name && 
+          !isNaN(p.score) && 
+          p.score > 0
+        );
+
+      // 並び替え
+      players.sort((a, b) => b.score - a.score);
+
+      // 🔥 更新時間表示
+      const now = new Date();
+      const timeText = now.toLocaleTimeString();
+      document.getElementById("time").textContent = "更新: " + timeText;
+
+      // TOP3
+      let topHTML = "";
+
+      if (players[0]) {
+        topHTML += `<div class="card first">🥇<br>${players[0].name}<br>${players[0].score}</div>`;
+      }
+      if (players[1]) {
+        topHTML += `<div class="card second">🥈<br>${players[1].name}<br>${players[1].score}</div>`;
+      }
+      if (players[2]) {
+        topHTML += `<div class="card third">🥉<br>${players[2].name}<br>${players[2].score}</div>`;
+      }
+
+      document.getElementById("top3").innerHTML = topHTML;
+
+      // 4位以降
+      let tableHTML = "";
+
+      players.slice(3).forEach((p, i) => {
+        tableHTML += `
+          <tr>
+            <td>${i + 4}</td>
+            <td>${p.name}</td>
+            <td>${p.score}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("ranking").innerHTML = tableHTML;
+    });
+}
+
+// 初回＋更新
+loadData();
+setInterval(loadData, 5000);
+</script>
+
+</body>
+</html>
