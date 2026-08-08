@@ -101,6 +101,44 @@ z-index:9999;
 
 }
 
+#syncScreen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+background:black;
+
+display:none;
+
+justify-content:center;
+align-items:center;
+flex-direction:column;
+
+z-index:99999;
+}
+
+#syncLogo{
+width:400px;
+height:auto;
+
+filter:
+drop-shadow(0 0 20px #0ff)
+drop-shadow(0 0 50px #0ff);
+}
+
+#syncText{
+margin-top:30px;
+font-size:40px;
+color:#0ff;
+
+letter-spacing:8px;
+
+text-shadow:
+0 0 10px #0ff,
+0 0 20px #0ff;
+}
 
 </style>
 </head>
@@ -115,33 +153,53 @@ z-index:9999;
   <table id="ranking"></table>
 </div>
 
+<div id="syncScreen">
+
+<img
+id="syncLogo"
+src="argus.png">
+
+<div id="syncText">
+SYNCING...
+</div>
+
+</div>
+  
 <script>
 const url = "https://script.google.com/macros/s/AKfycbxhcszAmiJbfpPyPXxPtbtfZShlA6Ls8hxVGpn5g96HynYrA02poCAEC6C5luNSRT_w/exec";
 
-function loadData() {
+function loadData(showSync = false) {
+
+  const sync =
+    document.getElementById("syncScreen");
+
+  if(showSync){
+    sync.style.display = "flex";
+  }
+
   fetch(url)
     .then(res => res.json())
     .then(players => {
 
-      // 🔥 不正データ除外（ここ重要）
+      // 不正データ除外
       players = players
         .map(p => ({
           name: p.name?.trim(),
           score: Number(p.score)
         }))
-        .filter(p => 
-          p.name && 
-          !isNaN(p.score) && 
+        .filter(p =>
+          p.name &&
+          !isNaN(p.score) &&
           p.score > 0
         );
 
       // 並び替え
       players.sort((a, b) => b.score - a.score);
 
-      // 🔥 更新時間表示
+      // 更新時間
       const now = new Date();
-      const timeText = now.toLocaleTimeString();
-      document.getElementById("time").textContent = "更新: " + timeText;
+      document.getElementById("time").textContent =
+        "更新: " + now.toLocaleTimeString();
 
       // TOP3
       let topHTML = "";
@@ -149,9 +207,11 @@ function loadData() {
       if (players[0]) {
         topHTML += `<div class="card first">🥇<br>${players[0].name}<br>${players[0].score}</div>`;
       }
+
       if (players[1]) {
         topHTML += `<div class="card second">🥈<br>${players[1].name}<br>${players[1].score}</div>`;
       }
+
       if (players[2]) {
         topHTML += `<div class="card third">🥉<br>${players[2].name}<br>${players[2].score}</div>`;
       }
@@ -162,6 +222,7 @@ function loadData() {
       let tableHTML = "";
 
       players.slice(3).forEach((p, i) => {
+
         tableHTML += `
           <tr>
             <td>${i + 4}</td>
@@ -169,15 +230,26 @@ function loadData() {
             <td>${p.score}</td>
           </tr>
         `;
+
       });
 
       document.getElementById("ranking").innerHTML = tableHTML;
-    });
-}
 
+      if(showSync){
+        setTimeout(() => {
+          sync.style.display = "none";
+        }, 1500);
+      }
+
+    });
+
+}
 // 初回＋更新
 loadData();
-setInterval(loadData, 5000);
+
+setInterval(() => {
+  loadData(true);
+}, 180000);
 </script>
 
 </body>
