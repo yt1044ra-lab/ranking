@@ -87,11 +87,26 @@ td {
   padding: 12px;
   text-align: center;
 }
+
+#logo{
+
+position:fixed;
+top:20px;
+left:20px;
+
+width:150px;
+height:auto;
+
+z-index:9999;
+
+}
+
+
 </style>
 </head>
-
 <body>
 
+<img id="logo" src="argus.png">
 <h1>🏆 ランキング</h1>
 <div id="time"></div>
 
@@ -101,7 +116,7 @@ td {
 </div>
 
 <script>
-const url = "https://script.google.com/macros/s/AKfycbwSRP0UYMd96CnH3la3Mt7YL6uSrr5rHSxx9J3tseSLX2g7vTtXpYlxzBmOXAbUVZxF6w/exec";
+const url = "https://script.google.com/macros/s/AKfycbxhcszAmiJbfpPyPXxPtbtfZShlA6Ls8hxVGpn5g96HynYrA02poCAEC6C5luNSRT_w/exec";
 
 function loadData() {
   fetch(url)
